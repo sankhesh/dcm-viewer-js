@@ -12,8 +12,8 @@
     "start": "webpack-dev-server --progress  --mode=development"
   },
   "dependencies": {
-    "@kitware/vtk.js": "^19.5.1",
-    "itk": "^14.1.1"
+    "@kitware/vtk.js": "^22.3.0",
+    "itk-wasm": "^1.0.0-a.10"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^9.0.1",
