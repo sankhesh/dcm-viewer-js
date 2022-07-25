@@ -1,4 +1,4 @@
-import { readImageDICOMFileSeries } from "itk-wasm/dist/browser/index.js";
+import { readImageDICOMFileSeries, readArrayBuffer, writeArrayBuffer } from "itk-wasm";
 import Viewer from "./viewer";
 
 // Setup viewer with DOM
@@ -46,7 +46,21 @@ fileInput.addEventListener("change", async (event) => {
 
     itkReader.image.imageType.pixelType = 1;
     itkReader.image.direction.data = itkReader.image.direction;
+    itkReader.image.direction.data[1] = -1;
+    console.log("Written Image", itkReader.image.direction);
+    // console.log(itkReader.image.direction.toString()); // 0, 0, -1, 1, 0, 0, 0, -1, 0
 
+    const { arrayBuffer: itkImageArrayBuffer } =
+      await writeArrayBuffer(null, itkReader.image,'test.mha', "", false);
+
+    const { image: cachedImage } = await readArrayBuffer(
+      null,
+      itkImageArrayBuffer,
+      'test.mha'
+    );
+
+    console.log("Read Image", cachedImage.direction); // 0,1,0,0,0,-1,-1,0,0
+    
     // Load in viewer
     viewer.load(itkReader.image, parseInt(selector.value));
     selector.removeAttribute("hidden");
@@ -67,24 +81,24 @@ fileInput.addEventListener("change", async (event) => {
     console.log("Terminating workerpool", index);
     itkReader.webWorkerPool.terminateWorkers();
     itkReader.webWorkerPool = [];
-    // itkReader.image = [];
+    itkReader.image = [];
     // delete itkReader.webWorkerPool;
     // itkReader.webWorkerPool = null;
   };
 
-  // get();
-  let cacheIndex = -1;
-  const getInt = setInterval(() => {
-    let index = cacheIndex + 1;
-    console.log("Starting workerpool:", index);
-    get(index);
-    cacheIndex = index;
-  }, 1000);
-  const gett = setTimeout(stopInt, 2000, getInt);
-  function stopInt(ti) {
-    clearInterval(ti);
-    console.error("Done");
-  }
+  get();
+//  let cacheIndex = -1;
+//  const getInt = setInterval(() => {
+//    let index = cacheIndex + 1;
+//    console.log("Starting workerpool:", index);
+//    get(index);
+//    cacheIndex = index;
+//  }, 1000);
+//  const gett = setTimeout(stopInt, 5001, getInt);
+//  function stopInt(ti) {
+//    clearInterval(ti);
+//    console.error("Done");
+//  }
 
   // itkReader.image.imageType.pixelType = 1;
   // itkReader.image.direction.data = itkReader.image.direction;
